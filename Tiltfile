@@ -1,3 +1,5 @@
+load('ext://dotenv', 'dotenv')
+dotenv(fn='dev/.env.dev')
 load('ext://uibutton', 'cmd_button', 'location', 'text_input', 'bool_input')
 running_under_parent_tiltfile = os.getenv("TILT_PARENT", "false") == "true"
 # The user/pass that you will login to Grafana with
@@ -7,9 +9,23 @@ e2e_tests_cmd=os.getenv("E2E_TESTS_CMD", "cd grafana-plugin && yarn test:e2e")
 twilio_values=[
     "oncall.twilio.accountSid=" + os.getenv("TWILIO_ACCOUNT_SID", ""),
     "oncall.twilio.authToken=" + os.getenv("TWILIO_AUTH_TOKEN", ""),
-    "oncall.twilio.phoneNumber=" + os.getenv("TWILIO_PHONE_NUMBER", ""),
-    "oncall.twilio.verifySid=" + os.getenv("TWILIO_VERIFY_SID", ""),
+    "oncall.twilio.verifySid=" + os.getenv("TWILIO_VERIFY_SERVICE_SID", ""),
+] # see possible values at: helm/oncall/templates/_env.tpl
+
+# Tilt does not support a --set-string Helm option, which is required to pass a phone 
+# number starting with a plus sign into Helm properly
+# Alternatives:
+#   1. set the phone number in the helm-local.dev.yml file which is not version controlled
+#   2. modify the Helm template to prepend a plus to the phone number parameter
+#   3. submit a Tilt PR to support --set-string
+#   4. set the phone number in the helm.dev.yml file [SELECTED OPTION]
+# Until one of the above is implemented, the below will not work:
+twilio_strings=[
+"oncall.twilio.phoneNumber=" + os.getenv("TWILIO_PHONE_NUMBER", ""),
 ]
+# (also not included in the Helm() call below)
+
+print(twilio_values)
 is_ci=config.tilt_subcommand == "ci"
 # HELM_PREFIX must be "oncall-dev" as it is hardcoded in dev/helm-local.yml
 HELM_PREFIX = "oncall-dev"
@@ -20,8 +36,7 @@ if not running_under_parent_tiltfile:
     # Load the custom Grafana extensions
     v1alpha1.extension_repo(
         name="grafana-tilt-extensions",
-        ref="v1.2.0",
-        url="https://github.com/grafana/tilt-extensions",
+        url="file:///Users/km/Documents/Projects/Coral/crabshack/dev/tilt-extensions",
     )
 v1alpha1.extension(
     name="grafana", repo_name="grafana-tilt-extensions", repo_path="grafana"
@@ -127,6 +142,20 @@ configmap_create(
 k8s_resource(
     objects=["grafana-oncall-app-provisioning:configmap"],
     new_name="grafana-oncall-app-provisioning-configmap",
+    resource_deps=["build-ui", "engine"],
+    labels=["Grafana"],
+)
+
+# Alerting config
+configmap_create(
+    "alert-rules-provisioning",
+    namespace="default",
+    from_file="dev/grafana/provisioning/alerting/my_alert_resources.yaml",
+)
+
+k8s_resource(
+    objects=["alert-rules-provisioning:configmap"],
+    new_name="alert-rules-provisioning-configmap",
     resource_deps=["build-ui", "engine"],
     labels=["Grafana"],
 )

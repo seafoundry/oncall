@@ -84,6 +84,8 @@ export const Text: TextInterface = (props) => {
 
   const CustomTag = (customTag || `span`) as unknown as React.ComponentType<any>;
 
+  {console.log("Tag ("+(children as string)+") is "+(editable ? "" : "not") + " editable")}
+
   return (
     <CustomTag
       onClick={onClick}

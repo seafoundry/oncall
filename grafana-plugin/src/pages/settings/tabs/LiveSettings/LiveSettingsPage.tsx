@@ -55,6 +55,7 @@ class LiveSettings extends React.Component<LiveSettingsProps, LiveSettingsState>
   }
 
   update = () => {
+    console.log("Updated the store now");
     const { store } = this.props;
 
     store.globalSettingStore.updateItems();
@@ -115,7 +116,7 @@ class LiveSettings extends React.Component<LiveSettingsProps, LiveSettingsState>
           title={() => (
             <div className={cx('header')}>
               <HorizontalGroup>
-                <Text.Title level={3}>Env Variables</Text.Title>
+                <Text.Title level={3}>Env Variables Go Here</Text.Title>
               </HorizontalGroup>
               <HorizontalGroup justify="flex-end">
                 <WithPermissionControlTooltip userAction={UserActions.OtherSettingsWrite}>
@@ -157,6 +158,8 @@ class LiveSettings extends React.Component<LiveSettingsProps, LiveSettingsState>
         />
       );
     }
+
+    {console.log("Edit permission for "+item.name+" is "+(isUserActionAllowed(UserActions.OtherSettingsWrite) ? 'True' : 'False'))}
 
     return (
       <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
@@ -207,7 +210,7 @@ class LiveSettings extends React.Component<LiveSettingsProps, LiveSettingsState>
 
     return (
       <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
-        <Text>{hideValues && item.is_secret ? PLACEHOLDER : normalizeValue(item.default_value)}</Text>
+        <Text>{normalizeValue(item.default_value)}</Text>
       </div>
     );
   };
