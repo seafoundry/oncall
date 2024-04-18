@@ -19,5 +19,5 @@ class AlertGroupSmsRenderer(AlertGroupBaseRenderer):
         templated_alert = self.alert_renderer.templated_alert
         title = str_or_backup(templated_alert.title, DEFAULT_BACKUP_TITLE)
         return (
-            f"Hey Babe, Grafana here: {title}"
+            f"{title}"
         )
