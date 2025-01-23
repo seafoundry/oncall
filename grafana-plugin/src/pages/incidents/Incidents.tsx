@@ -173,7 +173,7 @@ class _IncidentsPage extends React.Component<IncidentsPageProps, IncidentsPageSt
         <div className={cx('root')}>
           <div className={cx('title')}>
             <HorizontalGroup justify="space-between">
-              <Text.Title level={3}>Alert Groups</Text.Title>
+              <Text.Title level={3}>Alert Groups, coral lovers!!!!</Text.Title>
               <WithPermissionControlTooltip userAction={UserActions.AlertGroupsDirectPaging}>
                 <Button icon="plus" onClick={this.handleOnClickEscalateTo}>
                   Escalation

@@ -69,7 +69,7 @@ FROM dev AS dev-enterprise
 # TODO: figure out how to get this to work.. see comment in .github/workflows/e2e-tests.yml
 # https://stackoverflow.com/a/71846527
 # RUN --mount=type=cache,target=/root/.cache/pip,from=pip_cache pip install -r requirements-enterprise-docker.txt
-RUN pip install -r requirements-enterprise-docker.txt
+RUN pip install -r requirements-dev.txt
 
 FROM base AS prod
 

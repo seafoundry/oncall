@@ -1,4 +1,4 @@
-base_url: localhost:8080
+base_url: oncall-dev-engine:8080
 base_url_protocol: http
 env:
   - name: GRAFANA_CLOUD_NOTIFICATIONS_ENABLED
@@ -8,6 +8,12 @@ env:
   # enabled to be able to test docker.host.internal in the webhook e2e tests
   - name: DANGEROUS_WEBHOOKS_ENABLED
     value: "True"
+  # The rest of the Twilio variables are set in .env.dev
+  # This one has to be set here because of Tilt limitations in parsing command line
+  # arguments involving a string that starts with a plus sign.
+  - name: TWILIO_NUMBER
+    value: "+18449763035"
+
 image:
   repository: localhost:63628/oncall/engine
   tag: dev
@@ -71,6 +77,7 @@ grafana:
     GF_DATABASE_USER: root
     GF_DATABASE_SSL_MODE: disable
     GF_DATABASE_PASSWORD: oncallpassword
+
   # by settings grafana.plugins to [] and configuring grafana.extraVolumeMounts we are using the locally built
   # OnCall plugin rather than the latest published version
   plugins: []
@@ -85,7 +92,7 @@ grafana:
       hostPath: /dev-config/grafana/grafana.dev.ini
       readOnly: true
     - name: provisioning
-      mountPath: /var/lib/grafana/provisioning
+      mountPath: /etc/grafana/provisioning
       hostPath: /dev-config/grafana/provisioning
       readOnly: true
   service:
@@ -117,6 +124,11 @@ mariadb:
         value: utf8mb4_unicode_ci
   auth:
     rootPassword: oncallpassword
+  extraVolumeMounts:
+    - name: mariadb_data
+      mountPath: /var/lib/mysql
+      hostPath: /dev-config/mariadb
+      readOnly: false
 
 ingress:
   enabled: false
@@ -140,3 +152,4 @@ prometheus:
       static_configs:
         - targets:
           - oncall-dev-engine.default.svc.cluster.local:8080
+
